@@ -44,26 +44,35 @@ const updateActivityById = async (req, res) => {
         let activityDetailId = params.activityDetailId
         let activityDate = params.date
 
+        let isTitleUpdate = params.isTitleUpdate != undefined ? params.isTitleUpdate : false;
+        let isTitleName = params.isTitleName != undefined ? params.isTitleName : "";
+        // console.log(params.isTitleUpdate);
+
         let findActivity = await Activity.findOne({ _id: activityId })
         console.log('activityId-----', findActivity);
 
-        let activityArray = findActivity.activity;
-        if (activityDetailId != "") {
-            if (activityArray.length > 0) {
-                activityArray.map((obj) => {
-                    if (obj._id == activityDetailId) {
-                        obj.isTrue = !obj.isTrue;
-                    }
+        if (isTitleUpdate == false) {
+            let activityArray = findActivity.activity;
+            if (activityDetailId != "") {
+                if (activityArray.length > 0) {
+                    activityArray.map((obj) => {
+                        if (isTitleUpdate == false && obj._id == activityDetailId) {
+                            obj.isTrue = !obj.isTrue;
+                        }
+                    })
+                }
+            } else {
+                activityArray.push({
+                    isTrue: true,
+                    date: activityDate
                 })
             }
+            findActivity.activity = activityArray;
         } else {
-            activityArray.push({
-                isTrue: true,
-                date: activityDate
-            })
+            findActivity.title = isTitleName;
         }
 
-        findActivity.activity = activityArray;
+
         const updatedObj = await Activity.findOneAndUpdate({ _id: activityId }, findActivity, { new: true })
         return res.status(200).json(updatedObj);
     } catch (error) {
@@ -73,14 +82,10 @@ const updateActivityById = async (req, res) => {
 
 const deleteActivitiesByUserId = async (req, res) => {
     try {
+        if (!ObjectID.isValid(req.params.id))
+            return res.status(400).send('No record with given id : ' + req.params.id)
 
-        let params = req.body
-
-        if (!ObjectID.isValid(params.activityId))
-            return res.status(400).send('No record with given id : ' + params.activityId)
-
-        console.log("Activity :: ", Activity, params.activityId);
-        Activity.findOneAndRemove({ _id: params.activityId }, function (err, docs) {
+        Activity.findOneAndRemove({ _id: req.params.id }, function (err, docs) {
             if (!err) res.status(200).json("data Delete");
             else res.status(205).json("data not Delete");
         });

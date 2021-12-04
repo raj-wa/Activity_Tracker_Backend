@@ -22,7 +22,7 @@ app.get('/user',UserController.getUsers)
 app.post('/activity/create',ActivityController.createActivity)
 app.put('/activity/update',ActivityController.updateActivityById)
 app.post('/activity',ActivityController.getActivitiesByUserId)
-app.delete('/activity',ActivityController.deleteActivitiesByUserId)
+app.delete('/activity/:id',ActivityController.deleteActivitiesByUserId)
 
 
 const port = process.env.PORT || 5000;
